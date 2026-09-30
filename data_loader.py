@@ -16,3 +16,12 @@ def load_data():
             train = pd.read_csv(CURRENT["path"])
             test = pd.read_csv(CURRENT["test_path"])
     return train, test
+
+def vectorize(train, test):
+    vect = TfidfVectorizer(
+        stop_words=stopwords.words('german'),
+        max_features=CURRENT["max_features"]
+    )
+    X_train = vect.fit_transform(train["Text"])
+    X_test = vect.transform(test["Text"])
+    return X_train, X_test, vect
