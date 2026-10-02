@@ -1,4 +1,5 @@
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
 
 
@@ -9,7 +10,6 @@ def get_logreg():
         class_weight="balanced"
     )
 
-
 def get_xgb():
     return XGBClassifier(
         n_estimators=200,
@@ -17,4 +17,11 @@ def get_xgb():
         learning_rate=0.1,
         random_state=42,
         eval_metric='mlogloss'
+    )
+
+def get_mlp():
+    return MLPClassifier(
+        hidden_layer_sizes=(100,),
+        max_iter=200,
+        random_state=42
     )

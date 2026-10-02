@@ -9,6 +9,7 @@ DATASETS = {
         "text_col": "comment",
         "label_col": "rating",
         "task": "classification",
+        "max_features": 20000,
     },
 }
 

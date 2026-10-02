@@ -1,6 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from config import CURRENT
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 def load_data():
     if CURRENT["source"] == "hf":
