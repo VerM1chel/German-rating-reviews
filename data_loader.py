@@ -14,7 +14,11 @@ def load_data():
     elif CURRENT["source"] == "local":
         if CURRENT["test_path"] is None:
             df = pd.read_csv(CURRENT["path"])
-            train, test = train_test_split(df, test_size=0.2, random_state=42)
+            train, test = train_test_split(
+                df,
+                test_size=0.2,
+                random_state=42,
+            )
         else:
             train = pd.read_csv(CURRENT["path"])
             test = pd.read_csv(CURRENT["test_path"])
