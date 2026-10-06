@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
 
@@ -25,3 +26,10 @@ def get_mlp():
         max_iter=200,
         random_state=42
     )
+
+def get_svm():
+    return SVC(
+    kernel='rbf',
+    class_weight='balanced',
+    random_state=42,
+)

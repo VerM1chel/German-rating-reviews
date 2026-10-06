@@ -1,11 +1,11 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBClassifier
 
-from models import get_xgb, get_mlp
+from core.models import get_mlp
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from scipy.stats import uniform, randint
+from scipy.stats import uniform
 from nltk.corpus import stopwords
 
 pipeline_lr = Pipeline([

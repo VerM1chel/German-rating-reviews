@@ -2,7 +2,7 @@ import time
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
 
 import torch
 from torch.utils.data import Dataset
@@ -13,21 +13,11 @@ from transformers import (
     TrainingArguments,
 )
 
-# ============================================================
-# Конфиг
-# ============================================================
-CSV_PATH = "2021_german_doctor_reviews.csv"
-TEXT_COL = "comment"
-LABEL_COL = "rating"
-MODEL_NAME = "distilbert-base-german-cased"
-SUBSET_SIZE = 80000
-MAX_LENGTH = 128
-BATCH_SIZE = 16
-EPOCHS = 2
-SEED = 42
+from distilbert.config import CURRENT
+from core.clean import clean
 
 # ============================================================
-# Устройство (CUDA для GTX 1650)
+# Устройство
 # ============================================================
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Используется: {DEVICE}")
@@ -38,15 +28,18 @@ if torch.cuda.is_available():
 # 1. Загрузка данных
 # ============================================================
 print("\nЗагрузка данных...")
-df = pd.read_csv(CSV_PATH)
-df = df.dropna(subset=[LABEL_COL])
-df = df.sample(n=min(SUBSET_SIZE, len(df)), random_state=SEED).reset_index(drop=True)
+df = pd.read_csv(CURRENT["csv_path"])
+df = df.dropna(subset=[CURRENT["label_col"]])
+df = df.sample(
+    n=min(CURRENT["subset_size"], len(df)),
+    random_state=CURRENT["seed"]
+).reset_index(drop=True)
 
-# Метки 1-6 -> 0-5
-df["label"] = df[LABEL_COL].astype(int) - 1
+df["Text"] = df[CURRENT["text_col"]].apply(clean)
+df["label"] = df[CURRENT["label_col"]].astype(int) - 1  # 1-6 -> 0-5
 
 train_df, test_df = train_test_split(
-    df, test_size=0.2, random_state=SEED,
+    df, test_size=0.2, random_state=CURRENT["seed"],
     stratify=df["label"]
 )
 
@@ -84,20 +77,20 @@ class ReviewDataset(Dataset):
 # ============================================================
 # 3. Модель и токенизатор
 # ============================================================
-print(f"\nЗагрузка {MODEL_NAME}...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+print(f"\nЗагрузка {CURRENT['model_name']}...")
+tokenizer = AutoTokenizer.from_pretrained(CURRENT["model_name"])
 model = AutoModelForSequenceClassification.from_pretrained(
-    MODEL_NAME, num_labels=6
+    CURRENT["model_name"], num_labels=6
 )
 
 # ============================================================
 # 4. Датасеты
 # ============================================================
 train_dataset = ReviewDataset(
-    train_df[TEXT_COL].values, train_df["label"].values, tokenizer, MAX_LENGTH
+    train_df["Text"].values, train_df["label"].values, tokenizer, CURRENT["max_length"]
 )
 test_dataset = ReviewDataset(
-    test_df[TEXT_COL].values, test_df["label"].values, tokenizer, MAX_LENGTH
+    test_df["Text"].values, test_df["label"].values, tokenizer, CURRENT["max_length"]
 )
 
 # ============================================================
@@ -115,16 +108,16 @@ def compute_metrics(eval_pred):
 # 6. Обучение
 # ============================================================
 training_args = TrainingArguments(
-    output_dir="./distilbert_german_reviews",
-    num_train_epochs=EPOCHS,
-    per_device_train_batch_size=BATCH_SIZE,
-    per_device_eval_batch_size=BATCH_SIZE,
+    output_dir=CURRENT["output_dir"],
+    num_train_epochs=CURRENT["epochs"],
+    per_device_train_batch_size=CURRENT["batch_size"],
+    per_device_eval_batch_size=CURRENT["batch_size"],
     eval_strategy="epoch",
     save_strategy="epoch",
     logging_steps=100,
     load_best_model_at_end=True,
     metric_for_best_model="f1_macro",
-    seed=SEED,
+    seed=CURRENT["seed"],
     fp16=True,
     dataloader_num_workers=0,
     report_to="none",
@@ -161,5 +154,17 @@ preds = trainer.predict(test_dataset)
 y_pred = np.argmax(preds.predictions, axis=-1)
 y_true = preds.label_ids
 
-print("\nОтчёт по классам:")
-print(classification_report(y_true, y_pred, digits=4))
+labels_sorted = sorted(set(y_true))
+prec, rec, f1, sup = precision_recall_fscore_support(
+    y_true, y_pred, labels=labels_sorted, zero_division=0
+)
+
+df_report = pd.DataFrame({
+    "Precision": prec,
+    "Recall": rec,
+    "F1": f1,
+    "Support": sup,
+}, index=[int(l) + 1 for l in labels_sorted])
+
+print()
+print(df_report.round(4))

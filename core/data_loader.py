@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from config import CURRENT
+from core.config import CURRENT
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -25,8 +25,15 @@ def load_data():
     return train, test
 
 def vectorize(train, test):
+    german_stops = set(stopwords.words('german'))
+    negations = {
+        'nicht',
+        'kein', 'keine', 'keinen', 'keinem', 'keiner', 'keines',
+        'nichts', 'noch', 'ohne',
+    }
+    german_stops = list(german_stops - negations)
     vect = TfidfVectorizer(
-        stop_words=stopwords.words('german'),
+        stop_words=german_stops,
         max_features=CURRENT["max_features"]
     )
     X_train = vect.fit_transform(train["Text"])

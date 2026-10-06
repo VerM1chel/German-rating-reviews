@@ -1,9 +1,11 @@
+from pathlib import Path
+
 VERSION = "patient_reviews"
 
 DATASETS = {
     "patient_reviews": {
         "source": "local",
-        "path": "2021_german_doctor_reviews.csv",
+        "path": str(Path(__file__).parent.parent / "2021_german_doctor_reviews.csv"),
         "test_path": None,
         "lang": "de",
         "text_col": "comment",

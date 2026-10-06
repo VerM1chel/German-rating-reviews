@@ -1,11 +1,9 @@
 import time
 
-from config import CURRENT
-from data_loader import load_data
-from clean import clean
-from search_config import search_lr, search_xgb, search_mlp
-from sklearn.utils.class_weight import compute_sample_weight
-
+from core.config import CURRENT
+from core.data_loader import load_data
+from core.clean import clean
+from search_config import search_mlp
 
 # Загрузка
 train, test = load_data()

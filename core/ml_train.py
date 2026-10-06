@@ -1,12 +1,10 @@
 import time
-from config import CURRENT
-from data_loader import load_data, vectorize
-from clean import clean
-from models import get_logreg, get_mlp, get_xgb
+from core.config import CURRENT
+from core.data_loader import load_data, vectorize
+from core.clean import clean
+from core.models import get_logreg
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report
-from sklearn.utils.class_weight import compute_sample_weight
-
 
 # Загрузка
 train, test = load_data()
