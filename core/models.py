@@ -28,7 +28,7 @@ def get_mlp():
 
 def get_svm():
     return SVC(
-    kernel='rbf',
-    class_weight='balanced',
-    random_state=42,
-)
+        kernel='rbf',
+        class_weight='balanced',
+        random_state=42,
+    )

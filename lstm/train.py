@@ -1,5 +1,5 @@
-from config import CURRENT
-from core.clean import clean
+from core.config import CURRENT
+from core.data_loader import prepare_for_nn
 
 import time
 import numpy as np
@@ -7,7 +7,6 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
 
 # ============================================================
@@ -22,17 +21,7 @@ if torch.cuda.is_available():
 # 1. Loading data
 # ============================================================
 print("\nLoading data...")
-df = pd.read_csv(CURRENT["csv_path"])
-df = df.dropna(subset=[CURRENT["label_col"]])
-df = df.sample(n=min(CURRENT["subset_size"], len(df)), random_state=CURRENT["seed"]).reset_index(drop=True)
-df["Text"] = df[CURRENT["text_col"]].apply(clean)
-df["label"] = df[CURRENT["label_col"]].astype(int) - 1  # 1-6 -> 0-5
-
-train_df, test_df = train_test_split(
-    df, test_size=0.2, random_state=CURRENT["seed"],
-    stratify=df["label"]
-)
-
+train_df, test_df = prepare_for_nn()
 print(f"Train: {len(train_df)}, Test: {len(test_df)}")
 
 # ============================================================
@@ -43,7 +32,7 @@ from collections import Counter
 def tokenize(text):
     return text.lower().split()
 
-# Train-related glossary
+# Build vocabulary from training data
 counter = Counter()
 for text in train_df["Text"]:
     counter.update(tokenize(text))
@@ -58,7 +47,6 @@ print(f"Vocabulary size: {len(vocab)}")
 def encode(text, max_length):
     tokens = tokenize(text)[:max_length]
     ids = [vocab.get(tok, vocab["<unk>"]) for tok in tokens]
-    # Padding
     if len(ids) < max_length:
         ids += [vocab["<pad>"]] * (max_length - len(ids))
     return ids
@@ -123,7 +111,7 @@ model = LSTMClassifier(
 print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
 
 # ============================================================
-# 5. Education
+# 5. Training
 # ============================================================
 # Class weights (imbalance compensation)
 class_counts = train_df["label"].value_counts().sort_index().values

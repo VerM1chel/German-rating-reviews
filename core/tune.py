@@ -1,6 +1,6 @@
 from core.config import CURRENT
 from core.data_loader import load_data
-from core.clean import clean
+from core.clean import clean_text
 from core.search_config import search_lr, search_xgb, search_mlp
 
 import time
@@ -10,8 +10,8 @@ from sklearn.utils.class_weight import compute_sample_weight
 train, test = load_data()
 
 # Cleaning
-train["Text"] = train[CURRENT["text_col"]].apply(clean)
-test["Text"] = test[CURRENT["text_col"]].apply(clean)
+train["Text"] = train[CURRENT["text_col"]].apply(clean_text)
+test["Text"] = test[CURRENT["text_col"]].apply(clean_text)
 train = train.dropna(subset=[CURRENT["label_col"]])
 test = test.dropna(subset=[CURRENT["label_col"]])
 

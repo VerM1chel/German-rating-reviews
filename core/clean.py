@@ -1,11 +1,14 @@
 import re
 
-def clean(text):
+def clean_text(text):
+    """Remove URLs, tags, and 3+ character repetitions; collapse whitespace."""
     text = str(text)
-    text = re.sub(r'https?://\S+|www\.\S+', '', text) # Removing links
-    text = re.sub(r'[@#]\w+', '', text) # Removing tags
-    # Since some words change their meaning when repeated (such as "bitte" or "dass")
-    # it is best to consider only repetitions of three or more occurrences
-    text = re.sub(r'(\w)\1{2,}', r'\1', text) # We also remove repeated letters (e.g., converting "langsaaaaaam" to "langsam").
-    text = re.sub(r'\s+', ' ', text).strip() # Remove empty lines that may appear after cleaning.
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    text = re.sub(r'[@#]\w+', '', text)
+
+    # Some words change meaning when letters are collapsed (e.g., "bitte", "dass"),
+    # so only repetitions of 3+ are removed.
+    text = re.sub(r'(\w)\1{2,}', r'\1', text)
+
+    text = re.sub(r'\s+', ' ', text).strip()
     return text

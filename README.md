@@ -1,5 +1,45 @@
 # German-rating-reviews
 
+A text classification project for German-language reviews. The model predicts 
+a rating (1–6) directly from the review text — without any structured features, 
+metadata, or manual labeling.
+
+**What the model does:**
+Given a raw German review like *"Der Arzt war sehr freundlich und kompetent"*, 
+the model outputs a predicted rating (1 = best, 6 = worst) on the German school 
+grading scale. This is useful in cases where the rating is missing: reviews 
+without a star rating (Google Maps, forums, social media), legacy texts 
+without structured labels, or datasets that need pre-labeling. Concretely, 
+the model can:
+
+- **Auto-score incoming reviews** in a feedback system, without waiting 
+  for the user to leave a numerical rating.
+- **Triage and prioritize** negative reviews (ratings 5–6) for human follow-up, 
+  while filtering out clearly positive ones (rating 1).
+- **Monitor service quality over time** by aggregating predicted ratings 
+  across providers, locations, or regions.
+- **Pre-label datasets** for further human review, reducing manual annotation cost.
+
+**What else you'll find here:**
+Beyond the model, the project is a side-by-side comparison of six approaches 
+to the same task — from TF-IDF + LogisticRegression to DistilBERT fine-tuning. 
+Each is evaluated with the same metrics (accuracy, macro F1, per-class F1), 
+and the results show where classical ML plateaus (F1 macro ≈ 0.38) and why 
+a transformer helps (F1 macro = 0.44). This is useful if you're deciding 
+which model family to start with on a similar multi-class text classification task.
+
+**Where the model is limited:**
+- **Domain and language:** trained on German reviews; other languages will not work.
+- **Rating scale:** only 1–6 (German school grading).
+- **Gradations 2–4:** reliably separates clearly positive (1) from clearly negative (5–6), 
+  but struggles with adjacent gradations. For fine-grained decisions — use it as 
+  a pre-filter, not as the final label.
+
+The project compares six approaches: classical ML (TF-IDF + LogisticRegression, 
+XGBoost, SVM, MLP), RNN (LSTM), and a transformer (DistilBERT fine-tuning). 
+It includes per-class analysis, baseline comparison, and a published model 
+on HuggingFace Hub.
+
 ## Getting Started
 
 1. Install dependencies: `pip install -r requirements.txt`

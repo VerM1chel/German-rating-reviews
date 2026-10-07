@@ -1,28 +1,23 @@
 from core.config import CURRENT
 from core.data_loader import load_data, vectorize
-from core.clean import clean
+from core.clean import clean_text
 from core.models import get_logreg, get_xgb, get_mlp
 
 import time
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 from sklearn.utils.class_weight import compute_sample_weight
 
-# Loading
 train, test = load_data()
 
-# Cleaning
-train["Text"] = train[CURRENT["text_col"]].apply(clean)
-test["Text"] = test[CURRENT["text_col"]].apply(clean)
+train["Text"] = train[CURRENT["text_col"]].apply(clean_text)
+test["Text"] = test[CURRENT["text_col"]].apply(clean_text)
 train = train.dropna(subset=[CURRENT["label_col"]])
 test = test.dropna(subset=[CURRENT["label_col"]])
 
-# Vectorization
 X_train, X_test, vect = vectorize(train, test)
 
-# Tags
 y_train = train[CURRENT["label_col"]]
 y_test_true = test[CURRENT["label_col"]]
-
 
 # LogisticRegression
 model_lr = get_logreg()

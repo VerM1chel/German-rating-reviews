@@ -1,9 +1,8 @@
-from core.clean import clean
+from core.data_loader import prepare_for_nn
 
 import time
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
 import torch
 from torch.utils.data import Dataset
@@ -17,38 +16,24 @@ from distilbert.config import CURRENT
 
 
 # ============================================================
-# Устройство
+# Device
 # ============================================================
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Используется: {DEVICE}")
+print(f"Device: {DEVICE}")
 if torch.cuda.is_available():
     print(f"GPU: {torch.cuda.get_device_name(0)}")
 
 # ============================================================
-# 1. Загрузка данных
+# 1. Loading data
 # ============================================================
-print("\nЗагрузка данных...")
-df = pd.read_csv(CURRENT["csv_path"])
-df = df.dropna(subset=[CURRENT["label_col"]])
-df = df.sample(
-    n=min(CURRENT["subset_size"], len(df)),
-    random_state=CURRENT["seed"]
-).reset_index(drop=True)
-
-df["Text"] = df[CURRENT["text_col"]].apply(clean)
-df["label"] = df[CURRENT["label_col"]].astype(int) - 1  # 1-6 -> 0-5
-
-train_df, test_df = train_test_split(
-    df, test_size=0.2, random_state=CURRENT["seed"],
-    stratify=df["label"]
-)
-
+print("\nLoading data...")
+train_df, test_df = prepare_for_nn()
 print(f"Train: {len(train_df)}, Test: {len(test_df)}")
-print(f"Распределение классов (train):")
+print(f"Class distribution (train):")
 print(train_df["label"].value_counts(normalize=True).sort_index())
 
 # ============================================================
-# 2. Датасет
+# 2. Dataset
 # ============================================================
 class ReviewDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length):
@@ -62,7 +47,7 @@ class ReviewDataset(Dataset):
 
     def __getitem__(self, idx):
         enc = self.tokenizer(
-            str(self.texts[idx]),
+            str(self.texts[idx]),  # cast to str: original data may contain NaN
             truncation=True,
             padding="max_length",
             max_length=self.max_length,
@@ -75,16 +60,16 @@ class ReviewDataset(Dataset):
         }
 
 # ============================================================
-# 3. Модель и токенизатор
+# 3. Model and tokenizer
 # ============================================================
-print(f"\nЗагрузка {CURRENT['model_name']}...")
+print(f"\nLoading {CURRENT['model_name']}...")
 tokenizer = AutoTokenizer.from_pretrained(CURRENT["model_name"])
 model = AutoModelForSequenceClassification.from_pretrained(
     CURRENT["model_name"], num_labels=6
 )
 
 # ============================================================
-# 4. Датасеты
+# 4. Datasets
 # ============================================================
 train_dataset = ReviewDataset(
     train_df["Text"].values, train_df["label"].values, tokenizer, CURRENT["max_length"]
@@ -94,7 +79,7 @@ test_dataset = ReviewDataset(
 )
 
 # ============================================================
-# 5. Метрики
+# 5. Metrics
 # ============================================================
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
@@ -105,7 +90,7 @@ def compute_metrics(eval_pred):
     }
 
 # ============================================================
-# 6. Обучение
+# 6. Training
 # ============================================================
 training_args = TrainingArguments(
     output_dir=CURRENT["output_dir"],
@@ -118,7 +103,7 @@ training_args = TrainingArguments(
     load_best_model_at_end=True,
     metric_for_best_model="f1_macro",
     seed=CURRENT["seed"],
-    fp16=True,
+    fp16=True,  # ~2x faster on GTX 1650, no accuracy loss observed
     dataloader_num_workers=0,
     report_to="none",
 )
@@ -131,21 +116,21 @@ trainer = Trainer(
     compute_metrics=compute_metrics,
 )
 
-print("\nСтарт обучения...")
+print("\nStart of training...")
 start = time.time()
 trainer.train()
 train_time = time.time() - start
-print(f"\nОбщее время обучения: {train_time:.1f}s")
+print(f"\nTraining time: {train_time:.1f}s")
 
 # ============================================================
-# 7. Финальная оценка
+# 7. Evaluation
 # ============================================================
-print("\nФинальная оценка...")
+print("\nEvaluation...")
 start = time.time()
 results = trainer.evaluate()
 inf_time = time.time() - start
 
-print(f"Время инференса: {inf_time:.2f}s")
+print(f"Inference time: {inf_time:.2f}s")
 print(f"Accuracy: {results['eval_accuracy']:.4f}")
 print(f"F1 macro: {results['eval_f1_macro']:.4f}")
 
