@@ -2,10 +2,10 @@ import re
 
 def clean(text):
     text = str(text)
-    text = re.sub(r'https?://\S+|www\.\S+', '', text) # Убираем ссылки
-    text = re.sub(r'[@#]\w+', '', text) # Убираем теги
-    # Поскольку есть слова, которые меняют смысл при повторах "bitte", "dass"
-    # Лучши учитывать повторы только от повторений 3 и более раз
-    text = re.sub(r'(\w)\1{2,}', r'\1', text) # Убираем повторы букв (например, "langsaaaaaam" в "langsam")
-    text = re.sub(r'\s+', ' ', text).strip() # Убираем пустые строки, которые могут появиться после очистки
+    text = re.sub(r'https?://\S+|www\.\S+', '', text) # Removing links
+    text = re.sub(r'[@#]\w+', '', text) # Removing tags
+    # Since some words change their meaning when repeated (such as "bitte" or "dass")
+    # it is best to consider only repetitions of three or more occurrences
+    text = re.sub(r'(\w)\1{2,}', r'\1', text) # We also remove repeated letters (e.g., converting "langsaaaaaam" to "langsam").
+    text = re.sub(r'\s+', ' ', text).strip() # Remove empty lines that may appear after cleaning.
     return text

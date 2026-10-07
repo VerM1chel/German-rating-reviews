@@ -1,6 +1,7 @@
+from core.config import CURRENT
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from core.config import CURRENT
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 

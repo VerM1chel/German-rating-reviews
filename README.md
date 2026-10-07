@@ -17,7 +17,7 @@
 - **Class imbalance:** 81% — rating 1, remaining 19% — ratings 2–6
 - **Mean rating:** 1.56 (Std = 1.34)
 - **Split:** 80/20, `random_state=42`, no stratification (verified: class proportion difference < 0.001)
-
+- **Rating scale:** 1 = best, 6 = worst (German school grading system).
 
 ## Results
 | Model | Accuracy | F1 macro | Train time | Inference time |
@@ -200,6 +200,17 @@ None of the factors provides a significant gain. The reason — data structure:
 strong imbalance (81% — rating 1) and textual proximity of ratings 2–6. 
 The 6-class task requires a model with context (DistilBERT), 
 which yields F1 macro = 0.441 — a significant, but not radical gain.
+
+## Task limitations
+- **6 classes, 81% in class 1.** Severe class imbalance.
+- **Rating scale:** 1 = best, 6 = worst (German school grading system).
+- **Label noise:** some reviews contain mixed signals or subjective ratings 
+  (e.g., a clearly positive review rated 2). This limits the achievable F1 
+  regardless of model.
+- **Binary task (1 vs not-1) gives F1 = 0.837.** The model separates 
+  "good" from "not good" but struggles with gradations 2–6.
+- **All classical models plateau at 0.33–0.39.** DistilBERT reaches 0.441, 
+  a significant but not radical improvement.
 
 ## Model
 DistilBERT model is available on HuggingFace Hub: [VerMichel/german-reviews-distilbert](https://huggingface.co/VerMichel/german-reviews-distilbert)

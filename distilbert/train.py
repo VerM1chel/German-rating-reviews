@@ -1,9 +1,10 @@
+from core.clean import clean
+
 import time
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
-
 import torch
 from torch.utils.data import Dataset
 from transformers import (
@@ -12,9 +13,8 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
-
 from distilbert.config import CURRENT
-from core.clean import clean
+
 
 # ============================================================
 # Устройство

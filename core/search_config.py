@@ -1,7 +1,7 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from xgboost import XGBClassifier
-
 from core.models import get_mlp
+
+from xgboost import XGBClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline

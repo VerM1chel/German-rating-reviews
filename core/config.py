@@ -12,7 +12,6 @@ DATASETS = {
         "label_col": "rating",
         "task": "classification",
         "max_features": 20000,
-        "stratify": True,  # False для задач без меток (Оставить ли для будущих проектов?)
     },
 }
 

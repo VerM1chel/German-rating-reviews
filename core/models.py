@@ -3,7 +3,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
-
 def get_logreg():
     return LogisticRegression(
         max_iter=1000,

@@ -1,4 +1,11 @@
 .venv/
-.ipynb_checkpoints/
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
+distilbert_output/
+*.pt
+*.safetensors
+lstm_log.txt
+distilbert_log.txt
+2021_german_doctor_reviews.csv
+push_to_hf.py
