@@ -84,3 +84,6 @@ wcwidth==0.9.1
 xgboost==3.4.1
 xxhash==4.0.1
 yarl==1.25.1
+fastapi
+uvicorn[standard]
+pydantic
