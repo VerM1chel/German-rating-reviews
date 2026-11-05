@@ -4,6 +4,6 @@ pydantic==2.14.2
 pydantic_core==2.50.2
 torch==2.14.0
 transformers==5.17.0
-pandas==3.0.6
-numpy==2.5.3
+pandas==2.2.3
+numpy==1.26.4
 scikit-learn==1.9.1
