@@ -2,7 +2,7 @@
 
 A text classification project for German-language reviews. The model predicts 
 a rating (1–6) directly from the review text — without any structured features, 
-metadata, or manual labeling.
+metadata, or manual labeling. The project also includes a FastAPI microservice and a Docker container for easy deployment.
 
 **What the model does:**
 Given a raw German review like *"Der Arzt war sehr freundlich und kompetent"*, 
@@ -42,11 +42,57 @@ on HuggingFace Hub.
 
 ## Getting Started
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Download the dataset from Kaggle and place it in the project root.
+1. For training: pip install -r requirements-train.txt
+2. For API: pip install -r requirements-api.txt
 3. Train the baseline: `cd core && python ml_train.py`
 4. Train DistilBERT: `python -m distilbert.train`
 5. Experiments: `experiments/*.ipynb`
+
+## API & Docker
+The trained DistilBERT model is wrapped into a FastAPI microservice for real-time inference. It is containerized with Docker and available on Docker Hub.
+
+### Features
+- **Endpoint:** `/predict` accepts a JSON with text and returns the predicted rating (1–6) along with probabilities for each class.
+- **Health check:** `/health` for monitoring.
+- **Interactive docs:** Swagger UI available at `/docs`.
+
+### Run Locally (without Docker)
+```bash
+uvicorn api.main:app --reload
+```
+
+### Run with Docker
+Pull the pre-built image from Docker Hub:
+```bash
+docker pull verm1chel/german-reviews-api
+docker run -d -p 8000:8000 verm1chel/german-reviews-api
+```
+
+Alternatively, build it yourself:
+```bash
+docker build -t verm1chel/german-reviews-api .
+docker run -d -p 8000:8000 verm1chel/german-reviews-api
+```
+
+Example Request
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Sehr guter Arzt, immer freundlich!"}'
+```
+
+Response:
+```json
+{
+"rating": 1,
+"confidence": 0.95,
+"probabilities": {"1": 0.95, "2": 0.02, "3": 0.01, "4": 0.01, "5": 0.005, "6": 0.005}
+}
+```
+
+Note: The model is trained on German reviews, rating scale 1 = best, 6 = worst.
+Docker Hub
+vermichel/german-reviews-api
 
 ## Data
 
