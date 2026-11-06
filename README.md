@@ -42,8 +42,10 @@ on HuggingFace Hub.
 
 ## Getting Started
 
-1. For training: pip install -r requirements-train.txt
-2. For API: pip install -r requirements-api.txt
+1. Install dependencies:
+   - For training: `pip install -r requirements-train.txt`
+   - For API: `pip install -r requirements-api.txt`
+2. Download the dataset from Kaggle and place it in the project root.
 3. Train the baseline: `cd core && python ml_train.py`
 4. Train DistilBERT: `python -m distilbert.train`
 5. Experiments: `experiments/*.ipynb`
@@ -81,7 +83,7 @@ curl -X POST http://localhost:8000/predict \
   -d '{"text": "Sehr guter Arzt, immer freundlich!"}'
 ```
 
-Response:
+Response
 ```json
 {
 "rating": 1,
@@ -91,8 +93,8 @@ Response:
 ```
 
 Note: The model is trained on German reviews, rating scale 1 = best, 6 = worst.
-Docker Hub
-vermichel/german-reviews-api
+### Docker Hub
+[vermichel/german-reviews-api](https://hub.docker.com/r/verm1chel/german-reviews-api)
 
 ## Data
 
